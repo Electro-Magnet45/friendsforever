@@ -6,7 +6,7 @@ on:
       - v*
 
 jobs:
-  Build Android:
+  Build_Android:
     if: "!contains(github.event.head_commit.message, 'skip-android')"
     name: Building APK
     runs-on: ubuntu-latest
@@ -36,9 +36,9 @@ jobs:
           artifacts: "build/app/outputs/flutter-apk/*.apk"
           token: ${{ secrets.TOKEN }}
 
-  Build Windows:
+  Build_Windows:
     if: "!contains(github.event.head_commit.message, 'skip-windows')"
-    name: Building APK
+    name: Building msix
     runs-on: windows-latest
 
     steps:
