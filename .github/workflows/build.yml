@@ -60,14 +60,18 @@ jobs:
       - name: Enable windows build
         run: flutter config --enable-windows-desktop
 
-      - name: Build artifacts
-        run: flutter build windows
+      - name: Build Artifacts
+        run: flutter build windows --release
 
-      - name: Build msix
-        run: flutter pub run msix:create
+      - name: Archive Artifacts
+        uses: thedoctor0/zip-release@master
+        with:
+          type: "zip"
+          filename: FriendsForever-${{github.ref_name}}-windows.zip
+          directory: build/windows/runner/Release
 
       - name: Create Github Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/windows/runner/Release/*.msix"
+          artifacts: "build/windows/runner/Release/FriendsForever-${{github.ref_name}}-windows.zip"
           token: ${{ secrets.TOKEN }}
