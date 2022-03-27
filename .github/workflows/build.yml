@@ -1,0 +1,73 @@
+name: Build App
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  Build Android:
+    if: "!contains(github.event.head_commit.message, 'skip-android')"
+    name: Building APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "zulu"
+          java-version: "12.x"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+
+      - name: Get Packages
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --split-per-abi --release
+
+      - name: Create Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/flutter-apk/*.apk"
+          token: ${{ secrets.TOKEN }}
+
+  Build Windows:
+    if: "!contains(github.event.head_commit.message, 'skip-windows')"
+    name: Building APK
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "zulu"
+          java-version: "12.x"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+
+      - name: Get Packages
+        run: flutter pub get
+
+      - name: Enable windows build
+        run: flutter config --enable-windows-desktop
+
+      - name: Build artifacts
+        run: flutter build windows
+
+      - name: Build msix
+        run: flutter pub run msix:create
+
+      - name: Create Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/windows/runner/Release/*.msix"
+          token: ${{ secrets.TOKEN }}
